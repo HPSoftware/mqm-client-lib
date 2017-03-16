@@ -432,11 +432,11 @@ public abstract class AbstractMqmRestClient implements BaseMqmRestClient {
 		return new PagedList<>(items, offset, entities.getInt("total_count"));
 	}
 
-	URI getEntityURI(String collection, List<String> conditions, Long workspaceId, int offset, int limit, String orderBy) {
+	private URI getEntityURI(String collection, List<String> conditions, Long workspaceId, int offset, int limit, String orderBy) {
 		return getEntityURI(collection,conditions, null,workspaceId,offset, limit, orderBy);
 	}
 
-	URI getEntityURI(String collection, Collection<String> conditions, Collection<String> fields,  Long workspaceId, Integer offset, Integer limit, String orderBy) {
+	private URI getEntityURI(String collection, Collection<String> conditions, Collection<String> fields,  Long workspaceId, Integer offset, Integer limit, String orderBy) {
 
 		Map<String, Object> params = new HashMap<>();
 		StringBuilder template = new StringBuilder(collection + "?");
