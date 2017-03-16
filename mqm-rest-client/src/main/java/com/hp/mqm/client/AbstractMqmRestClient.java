@@ -28,6 +28,7 @@ import org.apache.http.*;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
@@ -80,6 +81,7 @@ public abstract class AbstractMqmRestClient implements BaseMqmRestClient {
 	private static final String WORKSPACE_API_URI = SHARED_SPACE_API_URI + "/workspaces/{1}";
 	private static final String WORKSPACE_INTERNAL_API_URI = SHARED_SPACE_INTERNAL_API_URI + "/workspaces/{1}";
 	private static final String FILTERING_FRAGMENT = "query={query}";
+	private static final String FIELDS_FRAGMENT = "fields={fields}";
 	private static final String PAGING_FRAGMENT = "offset={offset}&limit={limit}";
 	private static final String ORDER_BY_FRAGMENT = "order_by={order}";
 
@@ -395,14 +397,7 @@ public abstract class AbstractMqmRestClient implements BaseMqmRestClient {
 			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 				throw createRequestException("Entity retrieval failed", response);
 			}
-			String entitiesJson = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
-			JSONObject entities = JSONObject.fromObject(entitiesJson);
-
-			LinkedList<E> items = new LinkedList<>();
-			for (JSONObject entityObject : getJSONObjectCollection(entities, "data")) {
-				items.add(factory.create(entityObject.toString()));
-			}
-			return new PagedList<>(items, offset, entities.getInt("total_count"));
+			return convertResponceToPagedList(factory,offset, response);
 		} catch (IOException e) {
 			throw new RequestErrorException("Cannot retrieve entities from MQM.", e);
 		} finally {
@@ -410,11 +405,49 @@ public abstract class AbstractMqmRestClient implements BaseMqmRestClient {
 		}
 	}
 
-	URI getEntityURI(String collection, List<String> conditions, Long workspaceId, int offset, int limit, String orderBy) {
-		Map<String, Object> params = pagingParams(offset, limit);
-		StringBuilder template = new StringBuilder(collection + "?" + PAGING_FRAGMENT);
+	protected <E> PagedList<E> deleteEntities(URI uri, EntityFactory<E> factory) {
+		HttpDelete request = new HttpDelete(uri);
+		HttpResponse response = null;
+		try {
+			response = execute(request);
+			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+				throw createRequestException("Entity delete failed", response);
+			}
+			return convertResponceToPagedList(factory, 0, response);
+		} catch (IOException e) {
+			throw new RequestErrorException("Cannot delete entities from MQM.", e);
+		} finally {
+			HttpClientUtils.closeQuietly(response);
+		}
+	}
 
-		if (!conditions.isEmpty()) {
+	private <E> PagedList<E> convertResponceToPagedList(EntityFactory<E> factory, int offset, HttpResponse response) throws IOException {
+		String entitiesJson = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
+		JSONObject entities = JSONObject.fromObject(entitiesJson);
+
+		LinkedList<E> items = new LinkedList<>();
+		for (JSONObject entityObject : getJSONObjectCollection(entities, "data")) {
+			items.add(factory.create(entityObject.toString()));
+		}
+		return new PagedList<>(items, offset, entities.getInt("total_count"));
+	}
+
+	URI getEntityURI(String collection, List<String> conditions, Long workspaceId, int offset, int limit, String orderBy) {
+		return getEntityURI(collection,conditions, null,workspaceId,offset, limit, orderBy);
+	}
+
+	URI getEntityURI(String collection, Collection<String> conditions, Collection<String> fields,  Long workspaceId, Integer offset, Integer limit, String orderBy) {
+
+		Map<String, Object> params = new HashMap<>();
+		StringBuilder template = new StringBuilder(collection + "?");
+
+		if(offset!=null && limit!=null){
+			params.put("offset", offset);
+			params.put("limit", limit);
+			template.append("&" + PAGING_FRAGMENT);
+		}
+
+		if (conditions!=null && !conditions.isEmpty()) {
 			StringBuilder expr = new StringBuilder();
 			for (String condition : conditions) {
 				if (expr.length() > 0) {
@@ -424,6 +457,11 @@ public abstract class AbstractMqmRestClient implements BaseMqmRestClient {
 			}
 			params.put("query", "\"" + expr.toString() + "\"");
 			template.append("&" + FILTERING_FRAGMENT);
+		}
+
+		if (fields != null && !fields.isEmpty()) {
+			params.put("fields", StringUtils.join(fields, ","));
+			template.append("&" + FIELDS_FRAGMENT);
 		}
 
 		if (!StringUtils.isEmpty(orderBy)) {
@@ -493,15 +531,12 @@ public abstract class AbstractMqmRestClient implements BaseMqmRestClient {
 		return name + "=" + value;
 	}
 
-	private static String escapeQueryValue(String value) {
-		return value.replaceAll("(\\\\)", "$1$1").replaceAll("([\"'])", "\\\\$1");
+	protected String condition(String name, long value) {
+		return name + "=" + value;
 	}
 
-	private Map<String, Object> pagingParams(int offset, int limit) {
-		Map<String, Object> params = new HashMap<>();
-		params.put("offset", offset);
-		params.put("limit", limit);
-		return params;
+	private static String escapeQueryValue(String value) {
+		return value.replaceAll("(\\\\)", "$1$1").replaceAll("([\"'])", "\\\\$1");
 	}
 
 	private void addRequestHeaders(HttpUriRequest request) {

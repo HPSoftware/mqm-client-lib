@@ -15,22 +15,16 @@
 
 package com.hp.mqm.client;
 
-import com.hp.mqm.client.model.FieldMetadata;
-import com.hp.mqm.client.model.JobConfiguration;
-import com.hp.mqm.client.model.ListItem;
-import com.hp.mqm.client.model.PagedList;
-import com.hp.mqm.client.model.Pipeline;
-import com.hp.mqm.client.model.Release;
-import com.hp.mqm.client.model.Taxonomy;
-import com.hp.mqm.client.model.TestResultStatus;
-import com.hp.mqm.client.model.Workspace;
+import com.hp.mqm.client.model.*;
 import net.sf.json.JSONObject;
 
 import java.io.File;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Client for connection to MQM public API. It wraps whole http communication with MQM server. Client handles login automatically.
@@ -254,6 +248,10 @@ public interface MqmRestClient extends BaseMqmRestClient {
 	 * @throws UnsupportedEncodingException
 	 */
 	JSONObject postTest(String uftTestJson, HashMap<String, String> uftTestData, String serverURL) throws UnsupportedEncodingException;
+
+	PagedList<Test> getTests(long workspaceId, Map<String, String> queryFields, Collection<String> fields) throws UnsupportedEncodingException;
+
+	PagedList<Test> deleteTests(long workspaceId, Collection<Long> testIds);
 
 	/**
 	 * @param testId

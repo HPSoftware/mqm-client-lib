@@ -37,6 +37,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
+import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -58,6 +59,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	private static final String URI_WORKSPACE_BY_JOB_AND_SERVER = PREFIX_CI + "servers/{0}/jobs/{1}/workspaceId";
 	private static final String URI_BDI_CONFIGURATION = PREFIX_BDI + "configuration";
 	private static final String URI_RELEASES = "releases";
+	private static final String URI_TESTS = "tests";
 	private static final String URI_WORKSPACES = "workspaces";
 	private static final String URI_LIST_ITEMS = "list_nodes";
 	private static final String URI_METADATA_FIELDS = "metadata/fields";
@@ -692,6 +694,45 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		}
 	}
 
+	@Override
+	public PagedList<Test> getTests(long workspaceId, Map<String, String> queryFields, Collection<String> fields) throws UnsupportedEncodingException {
+
+		List<String> conditions = new ArrayList<>();
+
+        //add query
+        if (queryFields != null && !queryFields.isEmpty()) {
+            for (Map.Entry<String, String> entry : queryFields.entrySet()) {
+				String condition = condition(entry.getKey(),entry.getValue());
+				conditions.add(condition);
+			}
+        }
+
+		URI uri = getEntityURI(URI_TESTS, conditions,fields, workspaceId, null, null, null);
+		PagedList<Test> tests = getEntities(uri, DEFAULT_OFFSET, new TestEntityFactory());
+        return tests;
+    }
+
+	@Override
+	public PagedList<Test> deleteTests(long workspaceId, Collection<Long> testIds){
+		//query="id=3011||id=3012"
+
+		if (testIds == null || testIds.isEmpty()) {
+			return null;
+		}
+
+		List<String> idConditions = new ArrayList<>();
+		for(Long id : testIds){
+			idConditions.add(condition("id", id));
+		}
+		String finalCondition = StringUtils.join(idConditions,"||");
+
+
+
+		URI uri = getEntityURI(URI_TESTS, Arrays.asList(finalCondition),null, workspaceId, null, null, null);
+		PagedList<Test> tests = deleteEntities(uri, new TestEntityFactory());
+		return tests;
+	}
+
 	public void attachUFTParametersToTest(String testId, String resourceMtrAsJSON, String serverURL) throws UnsupportedEncodingException {
 		HttpPost request;
 		String description;
@@ -880,6 +921,17 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		@Override
 		public Release doCreate(JSONObject entityObject) {
 			return new Release(entityObject.getLong("id"), entityObject.getString("name"));
+		}
+	}
+
+	private static class TestEntityFactory extends AbstractEntityFactory<Test> {
+
+		@Override
+		public Test doCreate(JSONObject entityObject) {
+			Long id = entityObject.optLong("id",0);
+			String name = entityObject.optString("name", null);
+			String type = entityObject.optString("type", null);
+			return new Test(id, name , type);
 		}
 	}
 
