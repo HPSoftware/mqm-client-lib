@@ -15,6 +15,10 @@
 
 package com.hp.mqm.client;
 
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Collection;
+
 /**
  * Created by berkovir on 17/05/2017.
  */
@@ -38,6 +42,15 @@ public class QueryHelper {
 
     public static String condition(String name, long value) {
         return name + "=" + value;
+    }
+
+    public static String conditionIn(String name, Collection<?> ids, boolean isNumber) {
+        if (isNumber) {
+            return name + " IN " + StringUtils.join(ids, ",");
+        } else {
+            //wrap values with '
+            return name + " IN '" + StringUtils.join(ids, "','") + "'";
+        }
     }
 
     private static String escapeQueryValue(String value) {
