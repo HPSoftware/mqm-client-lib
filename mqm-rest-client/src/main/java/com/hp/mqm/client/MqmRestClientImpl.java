@@ -22,6 +22,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
@@ -491,7 +492,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	public PagedList<Release> queryReleases(String name, long workspaceId, int offset, int limit) {
 		List<String> conditions = new LinkedList<>();
 		if (!StringUtils.isEmpty(name)) {
-			conditions.add(condition("name", "*" + name + "*"));
+			conditions.add(QueryHelper.condition("name", "*" + name + "*"));
 		}
 		return getEntities(getEntityURI(URI_RELEASES, conditions, workspaceId, offset, limit, "name"), offset, new ReleaseEntityFactory());
 	}
@@ -501,7 +502,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		int offset = 0;
 		int limit = 1;
 		List<String> conditions = new LinkedList<>();
-		conditions.add(condition("id", String.valueOf(releaseId)));
+		conditions.add(QueryHelper.condition("id", String.valueOf(releaseId)));
 
 		List<Release> releases = getEntities(getEntityURI(URI_RELEASES, conditions, workspaceId, offset, limit, null), offset, new ReleaseEntityFactory()).getItems();
 		if (releases.size() != 1) {
@@ -519,7 +520,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	public PagedList<Workspace> queryWorkspaces(String name, int offset, int limit) {
 		List<String> conditions = new LinkedList<>();
 		if (!StringUtils.isEmpty(name)) {
-			conditions.add(condition("name", "*" + name + "*"));
+			conditions.add(QueryHelper.condition("name", "*" + name + "*"));
 		}
 		return getEntities(getEntityURI(URI_WORKSPACES, conditions, null, offset, limit, "name"), offset, new WorkspaceEntityFactory());
 	}
@@ -553,7 +554,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		List<String> conditions = new LinkedList<>();
 		conditions.add("!category={null}");
 		if (!StringUtils.isEmpty(name)) {
-			conditions.add("(" + condition("name", "*" + name + "*") + "||" + conditionRef("category", "name", "*" + name + "*") + ")");
+			conditions.add("(" + QueryHelper.condition("name", "*" + name + "*") + "||" + QueryHelper.conditionRef("category", "name", "*" + name + "*") + ")");
 		}
 		return getEntities(
 				getEntityURI(URI_TAXONOMY_NODES, conditions, workspaceId, offset, limit, null),
@@ -589,10 +590,10 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	public PagedList<ListItem> queryListItems(String logicalListName, String name, long workspaceId, int offset, int limit) {
 		List<String> conditions = new LinkedList<>();
 		if (!StringUtils.isEmpty(name)) {
-			conditions.add(condition("name", "*" + name + "*"));
+			conditions.add(QueryHelper.condition("name", "*" + name + "*"));
 		}
 		if (!StringUtils.isEmpty(logicalListName)) {
-			conditions.add(conditionRef("list_root", "logical_name", logicalListName));
+			conditions.add(QueryHelper.conditionRef("list_root", "logical_name", logicalListName));
 		}
 		return getEntities(getEntityURI(URI_LIST_ITEMS, conditions, workspaceId, offset, limit, null), offset, new ListItemEntityFactory());
 	}
@@ -626,7 +627,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		List<FieldMetadata> ret = new LinkedList<>();
 
 		List<String> conditions = new LinkedList<>();
-		conditions.add(condition("entity_name", "pipeline_node"));
+		conditions.add(QueryHelper.condition("entity_name", "pipeline_node"));
 
 		//loading all metadata fields
 		PagedList<FieldMetadata> allFieldMetadata = getEntities(getEntityURI(URI_METADATA_FIELDS, conditions, workspaceId, DEFAULT_OFFSET, DEFAULT_LIMIT, null), DEFAULT_OFFSET, new FieldMetadataFactory());
@@ -693,21 +694,10 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	}
 
 	@Override
-	public PagedList<Entity> getEntities(long workspaceId, String entityCollectionName, Map<String, String> queryFields, Collection<String> fields) throws UnsupportedEncodingException {
-
-		List<String> conditions = new ArrayList<>();
-
-		//add query
-		if (queryFields != null && !queryFields.isEmpty()) {
-			for (Map.Entry<String, String> entry : queryFields.entrySet()) {
-				String condition = condition(entry.getKey(), entry.getValue());
-				conditions.add(condition);
-			}
-		}
-
+	public PagedList<Entity> getEntities(long workspaceId, String entityCollectionName, Collection<String> conditions, Collection<String> fields) throws UnsupportedEncodingException {
 		URI uri = getEntityURI(entityCollectionName, conditions, fields, workspaceId, null, null, null);
-		PagedList<Entity> tests = getEntities(uri, DEFAULT_OFFSET, new GeneralEntityFactory());
-		return tests;
+		PagedList<Entity> entities = getEntities(uri, DEFAULT_OFFSET, new GeneralEntityFactory());
+		return entities;
 	}
 
 	@Override
@@ -746,7 +736,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 
 		List<String> idConditions = new ArrayList<>();
 		for (Long id : entitiesIds) {
-			idConditions.add(condition("id", id));
+			idConditions.add(QueryHelper.condition("id", id));
 		}
 		String finalCondition = StringUtils.join(idConditions, "||");
 
@@ -899,10 +889,8 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 
 		@Override
 		public Entity doCreate(JSONObject entityObject) {
-			Long id = entityObject.optLong("id",0);
-			String name = entityObject.optString("name", null);
-			String type = entityObject.optString("type", null);
-			return new Entity(id, name , type);
+			Entity entity = new Entity(entityObject);
+			return entity;
 		}
 	}
 

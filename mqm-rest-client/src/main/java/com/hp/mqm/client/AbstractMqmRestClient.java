@@ -542,30 +542,6 @@ public abstract class AbstractMqmRestClient implements BaseMqmRestClient {
 		}
 	}
 
-	String conditionRef(String name, long id) {
-		return name + "={id=" + id + "}";
-	}
-
-	String conditionRef(String name, String refName, String value) {
-		return name + "={" + condition(refName, value) + "}";
-	}
-
-	protected String condition(String name, String value) {
-		return name + "='" + escapeQueryValue(value) + "'";
-	}
-
-	protected String condition(String name, int value) {
-		return name + "=" + value;
-	}
-
-	protected String condition(String name, long value) {
-		return name + "=" + value;
-	}
-
-	private static String escapeQueryValue(String value) {
-		return value.replaceAll("(\\\\)", "$1$1").replaceAll("([\"'])", "\\\\$1");
-	}
-
 	private void addRequestHeaders(HttpUriRequest request) {
 		request.setHeader(HEADER_CLIENT_TYPE, clientType);
 	}

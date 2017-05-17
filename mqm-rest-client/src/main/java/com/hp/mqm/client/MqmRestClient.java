@@ -240,7 +240,7 @@ public interface MqmRestClient extends BaseMqmRestClient {
 
     JSONObject postEntities(long workspaceId, String entityCollectionName, String entityJson) throws UnsupportedEncodingException;
 
-    PagedList<Entity> getEntities(long workspaceId, String entityCollectionName, Map<String, String> queryFields, Collection<String> fields) throws UnsupportedEncodingException;
+    PagedList<Entity> getEntities(long workspaceId, String entityCollectionName, Collection<String> conditions, Collection<String> fields) throws UnsupportedEncodingException;
 
     PagedList<Entity> deleteEntities(long workspaceId, String entityCollectionName, Collection<Long> entitiesIds);
 

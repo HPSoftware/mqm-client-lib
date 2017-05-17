@@ -16,30 +16,47 @@
 
 package com.hp.mqm.client.model;
 
+import net.sf.json.JSONObject;
 /**
  * Class used to get Entity from Octane's response
  */
 final public class Entity {
 
-    private Long id;
-    private String name;
-    private String type;
+    public static String ID_FIELD = "id";
+    public static String NAME_FIELD = "name";
+    public static String TYPE_FIELD = "type";
 
-    public Entity(Long id, String name, String type) {
-        this.id = id;
-        this.name = name;
-        this.type = type;
+    private JSONObject entityObject;
+
+    public Entity(JSONObject entityObject) {
+        this.entityObject = entityObject;
     }
 
     public Long getId() {
-        return id;
+        return getLongValue(ID_FIELD);
     }
 
     public String getName() {
-        return name;
+        return getStringValue(NAME_FIELD);
     }
 
     public String getType() {
-        return type;
+        return getStringValue(TYPE_FIELD);
+    }
+
+    public String getStringValue(String fieldName) {
+        return entityObject.getString(fieldName);
+    }
+
+    public Long getLongValue(String fieldName) {
+        return entityObject.getLong(fieldName);
+    }
+
+    public Boolean getBooleanValue(String fieldName) {
+        return entityObject.getBoolean(fieldName);
+    }
+
+    public boolean containsField(String fieldName) {
+        return entityObject.containsKey(fieldName);
     }
 }
