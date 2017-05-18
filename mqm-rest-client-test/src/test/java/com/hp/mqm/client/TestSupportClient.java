@@ -90,7 +90,7 @@ class TestSupportClient extends AbstractMqmRestClient {
 	PagedList<ListItem> queryListItems(String name, long workspaceId, int offset, int limit) {
 		List<String> conditions = new LinkedList<>();
 		if (!StringUtils.isEmpty(name)) {
-			conditions.add(condition("name", name));
+			conditions.add(QueryHelper.condition("name", name));
 		}
 		return getEntities(getEntityURI(URI_LIST_ITEMS, conditions, workspaceId, offset, limit, null), offset, new ListItemEntityFactory());
 	}
@@ -98,7 +98,7 @@ class TestSupportClient extends AbstractMqmRestClient {
 	PagedList<TestRun> queryTestRuns(String name, long workspaceId, int offset, int limit) {
 		List<String> conditions = new LinkedList<>();
 		if (!StringUtils.isEmpty(name)) {
-			conditions.add(condition("name", "*" + name + "*"));
+			conditions.add(QueryHelper.condition("name", "*" + name + "*"));
 		}
 		return getEntities(getEntityURI(URI_TEST_RUN, conditions, workspaceId, offset, limit, null), offset, new TestRunEntityFactory());
 	}
@@ -134,23 +134,23 @@ class TestSupportClient extends AbstractMqmRestClient {
 
 	boolean checkBuild(String serverIdentity, String jobName, int number, long workspaceId) {
 		List<String> serverConditions = new LinkedList<>();
-		serverConditions.add(condition("instance_id", serverIdentity));
+		serverConditions.add(QueryHelper.condition("instance_id", serverIdentity));
 		PagedList<JSONObject> servers = getEntities(getEntityURI(URI_CI_SERVERS, serverConditions, workspaceId, 0, 1, null), 0, new JsonEntityFactory());
 		if (servers.getItems().isEmpty()) {
 			return false;
 		}
 
 		List<String> jobConditions = new LinkedList<>();
-		jobConditions.add(conditionRef("ci_server", servers.getItems().get(0).getInt("id")));
-		jobConditions.add(condition("name", jobName));
+		jobConditions.add(QueryHelper.conditionRef("ci_server", servers.getItems().get(0).getInt("id")));
+		jobConditions.add(QueryHelper.condition("name", jobName));
 		PagedList<JSONObject> jobs = getEntities(getEntityURI(URI_CI_JOBS, jobConditions, workspaceId, 0, 1, null), 0, new JsonEntityFactory());
 		if (jobs.getItems().isEmpty()) {
 			return false;
 		}
 
 		List<String> buildConditions = new LinkedList<>();
-		buildConditions.add(conditionRef("ci_job", jobs.getItems().get(0).getInt("id")));
-		buildConditions.add(condition("name", String.valueOf(number)));
+		buildConditions.add(QueryHelper.conditionRef("ci_job", jobs.getItems().get(0).getInt("id")));
+		buildConditions.add(QueryHelper.condition("name", String.valueOf(number)));
 		PagedList<JSONObject> builds = getEntities(getEntityURI(URI_BUILDS, buildConditions, workspaceId, 0, 1, null), 0, new JsonEntityFactory());
 		return !builds.getItems().isEmpty();
 	}
