@@ -15,10 +15,14 @@
 
 package com.hp.mqm.client.exception;
 
+import net.sf.json.JSONObject;
+
 /**
  * Exception means some IO error or error in the HTTP protocol.
  */
 public class RequestErrorException extends RequestException {
+
+    private JSONObject jsonObject;
 
     RequestErrorException() {
     }
@@ -35,7 +39,12 @@ public class RequestErrorException extends RequestException {
         super(cause);
     }
 
-    public RequestErrorException(String message, String description, String errorCode, int statusCode, String reason, Throwable cause) {
+    public RequestErrorException(String message, String description, String errorCode, int statusCode, String reason, Throwable cause, JSONObject jsonObject) {
         super(message, description, errorCode, statusCode, reason, cause);
+        this.jsonObject = jsonObject;
+    }
+
+    public JSONObject getJsonObject() {
+        return jsonObject;
     }
 }

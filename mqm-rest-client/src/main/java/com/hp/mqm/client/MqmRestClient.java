@@ -246,6 +246,8 @@ public interface MqmRestClient extends BaseMqmRestClient {
 
     JSONObject updateEntity(long workspaceId, String entityCollectionName, long id, String entityJson) throws UnsupportedEncodingException;
 
+	JSONObject updateEntities(long workspaceId, String entityCollectionName, String entityJson) throws UnsupportedEncodingException;
+
 	/**
 	 * Sends events list to MQM [PUT request].
 	 * Data expected to be serialized in JSON form by the consumer.

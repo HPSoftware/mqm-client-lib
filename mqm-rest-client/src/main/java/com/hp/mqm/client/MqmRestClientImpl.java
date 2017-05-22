@@ -702,6 +702,16 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	@Override
 	public JSONObject updateEntity(long workspaceId, String entityCollectionName, long entityId, String entityJson) throws UnsupportedEncodingException {
 		URI uri = getEntityIdURI(entityCollectionName, entityId, workspaceId);
+		return updateEntities(uri,entityJson);
+	}
+
+	@Override
+	public JSONObject updateEntities(long workspaceId, String entityCollectionName, String entityJson) throws UnsupportedEncodingException {
+		URI uri = getEntityURI(entityCollectionName, null, null, workspaceId, null, null, null);
+		return updateEntities(uri, entityJson);
+	}
+
+	private JSONObject updateEntities(URI uri, String entityJson) throws UnsupportedEncodingException {
 		HttpPut request = new HttpPut(uri);
 		request.setHeader(HTTP.CONTENT_TYPE, "application/json");
 		request.setHeader("Accept", "application/json");
@@ -715,15 +725,14 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 				throw new TemporarilyUnavailableException("Service not available");
 			}
 			if (statusCode != HttpStatus.SC_OK) {
-				throw createRequestException("Test put failed", response);
+				throw createRequestException("Put failed", response);
 			}
 			String json = IOUtils.toString(response.getEntity().getContent());
 			return JSONObject.fromObject(json);
 		} catch (IOException e) {
-			throw new RequestErrorException("Cannot put entity to MQM.", e);
+			throw new RequestErrorException("Cannot put entities to MQM.", e);
 		}
 	}
-
 
 	@Override
 	public PagedList<Entity> deleteEntities(long workspaceId, String entityCollectionName, Collection<Long> entitiesIds) {

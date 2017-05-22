@@ -507,9 +507,10 @@ public abstract class AbstractMqmRestClient implements BaseMqmRestClient {
 		String description = null;
 		String stackTrace = null;
 		String errorCode = null;
+		JSONObject jsonObject = null;
 		try {
 			String json = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
-			JSONObject jsonObject = JSONObject.fromObject(json);
+			jsonObject = JSONObject.fromObject(json);
 			if (jsonObject.has("error_code") && jsonObject.has("description")) {
 				// exception response
 				errorCode = jsonObject.getString("error_code");
@@ -535,10 +536,10 @@ public abstract class AbstractMqmRestClient implements BaseMqmRestClient {
 		String reason = response.getStatusLine().getReasonPhrase();
 		if (!StringUtils.isEmpty(errorCode)) {
 			return new RequestErrorException(message + "; error code: " + errorCode + "; description: " + description,
-					description, errorCode, statusCode, reason, cause);
+					description, errorCode, statusCode, reason, cause, jsonObject);
 		} else {
 			return new RequestErrorException(message + "; status code " + statusCode + "; reason " + reason,
-					description, errorCode, statusCode, reason, cause);
+					description, errorCode, statusCode, reason, cause, jsonObject);
 		}
 	}
 
