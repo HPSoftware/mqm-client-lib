@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hpe.adm.octane.ciplugins</groupId>
 		<artifactId>hpe-mqm-client-lib</artifactId>
-		<version>1.4.2-SNAPSHOT</version>
+		<version>1.4-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>mqm-rest-client-test</artifactId>
@@ -129,6 +129,9 @@
 		</profile>
 		<profile>
 			<id>sign</id>
+			<properties>
+				<gpg.homedir>/opt/gpg_import</gpg.homedir>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>

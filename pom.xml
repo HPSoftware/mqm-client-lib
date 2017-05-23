@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.hpe.adm.octane.ciplugins</groupId>
     <artifactId>hpe-mqm-client-lib</artifactId>
-    <version>1.4.2-SNAPSHOT</version>
+    <version>1.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>MQM Client librabry</name>
@@ -63,9 +63,6 @@
     </scm>
     <issueManagement></issueManagement>
     <ciManagement></ciManagement>
-    <properties>
-        <gpg.homedir>/opt/gpg_import</gpg.homedir>
-    </properties>
 
     <distributionManagement>
         <repository>
