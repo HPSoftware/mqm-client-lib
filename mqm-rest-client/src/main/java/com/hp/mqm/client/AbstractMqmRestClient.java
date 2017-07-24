@@ -345,6 +345,7 @@ public abstract class AbstractMqmRestClient implements BaseMqmRestClient {
 
 	private String encodeParam(String param) {
 		try {
+
 			return URLEncoder.encode(param, URI_PARAM_ENCODING).replace("+", "%20");
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException("Unsupported encoding used for URI parameter encoding.", e);

@@ -72,6 +72,7 @@
     </distributionManagement>
 
     <properties>
+        <commons.codec.version>1.9</commons.codec.version>
         <maven.compiler.plugin.version>3.1</maven.compiler.plugin.version>
         <maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
@@ -158,7 +159,11 @@
                 <version>${mockito.core.version}</version>
                 <scope>test</scope>
             </dependency>
-
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons.codec.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
