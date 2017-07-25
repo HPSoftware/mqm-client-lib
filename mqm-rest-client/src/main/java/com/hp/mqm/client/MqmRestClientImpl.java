@@ -31,6 +31,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -38,6 +39,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.commons.codec.binary.Base64;
 import java.io.*;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -121,6 +123,18 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		logger.log(Level.INFO,String.format("Job name before encoding: %s, after encoding : %s",jobName,jobNameForSending));
 
 		URI getUri = createSharedSpaceInternalApiUri(URI_PREFLIGHT, serverIdentity, jobNameForSending);
+		try {
+			URIBuilder uriPreflight = new URIBuilder(
+					createSharedSpaceInternalApiUri(URI_PREFLIGHT, serverIdentity, jobNameForSending)
+			).addParameter("isBase64", "true");
+
+			logger.log(Level.INFO,String.format("test preflight URI: %s",uriPreflight.build().getPath()));
+
+			getUri = uriPreflight.build();
+		}catch (URISyntaxException ex){
+			logger.log(Level.SEVERE,"Error creating uri for test preflight!",ex);
+		}
+
 
 		request = new HttpGet(getUri);
 		response = null;
