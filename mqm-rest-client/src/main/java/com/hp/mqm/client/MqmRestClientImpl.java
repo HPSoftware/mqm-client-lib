@@ -31,9 +31,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.utils.HttpClientUtils;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.*;
 import org.apache.http.protocol.HTTP;
 
 import java.io.*;
@@ -66,6 +64,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	private static final String URI_PUT_EVENTS = "analytics/ci/events";
 	private static final String URI_GET_ABRIDGED_TASKS = "analytics/ci/servers/{0}/tasks?self-type={1}&self-url={2}&api-version={3}&sdk-version={4}";
 	private static final String URI_PUT_ABRIDGED_RESULT = "analytics/ci/servers/{0}/tasks/{1}/result";
+	private static final String URI_POST_LOGS = "analytics/ci/{0}/{1}/{2}/logs";
 	private static final String URI_TAXONOMY_NODES = "taxonomy_nodes";
 
 	private static final String HEADER_ACCEPT = "Accept";
@@ -74,6 +73,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	private static final int DEFAULT_LIMIT = 100;
 	private static final int MAX_GET_LIMIT = 1000;
 	private static final String CONTENT_ENCODING_GZIP = "gzip";
+	private static final String UNCOMPRESSED_CONTENT_LENGTH = "Uncompressed-Content-Length";
 
 	/**
 	 * Constructor for AbstractMqmRestClient.
@@ -842,6 +842,35 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		} catch (Exception e) {
 			logger.severe("put request failed while sending events: " + e.getClass().getName());
 			result = false;
+		} finally {
+			HttpClientUtils.closeQuietly(response);
+		}
+		return result;
+	}
+
+	@Override
+	public boolean postLogs(long workspaceId, String selfIdentity, String ciJobId, String ciBuildId, InputStream inputStream, Long contentLength) {
+		HttpPost request;
+		HttpResponse response = null;
+		boolean result = true;
+
+		try {
+			request = new HttpPost(createWorkspaceInternalApiUriMap(URI_POST_LOGS, workspaceId, selfIdentity, ciJobId, ciBuildId));
+			request.setHeader(UNCOMPRESSED_CONTENT_LENGTH, String.valueOf(contentLength));
+			request.setEntity(this.createGZipEntity(inputStream));
+			response = execute(request);
+			int statusCode = response.getStatusLine().getStatusCode();
+
+			if (statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE || statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+				result = false;
+				logger.severe("post request failed while sending logs: " + statusCode);
+			} else if (statusCode != HttpStatus.SC_OK) {
+				logger.severe("Logs post failed" + statusCode);
+				throw createRequestException("Logs post failed", response);
+			}
+			logger.info(IOUtils.toString(response.getEntity().getContent(), "UTF-8"));
+		} catch (IOException e) {
+			throw new RequestErrorException("Cannot post logs to MQM.", e);
 		} finally {
 			HttpClientUtils.closeQuietly(response);
 		}

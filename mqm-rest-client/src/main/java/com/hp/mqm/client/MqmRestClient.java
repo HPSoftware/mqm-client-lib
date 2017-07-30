@@ -19,6 +19,7 @@ import com.hp.mqm.client.model.*;
 import net.sf.json.JSONObject;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
@@ -255,6 +256,20 @@ public interface MqmRestClient extends BaseMqmRestClient {
 	 * @return notifies the consumer about the final result of an action
 	 */
 	boolean putEvents(String eventsJSON);
+
+	/**
+	 * Sends logs to MQM [POST request].
+	 * InputStream obtained from InputStreamSource is automatically closed after all data are read.
+	 * No exception is expected to be thrown.
+	 * @param workspaceId workspace ID that the pipeline should be assigned to
+	 * @param selfIdentity identity of the server
+	 * @param ciJobId The job name
+	 * @param ciBuildId The build number.
+	 * @param inputStream The build number.
+	 * @param contentLength The file size .
+	 * @return The operation status.
+	 */
+	boolean postLogs(long workspaceId, String selfIdentity, String ciJobId, String ciBuildId, InputStream inputStream, Long contentLength);
 
 	/**
 	 * Retrieves tasks from service working in Abridged Connectivity Mode
