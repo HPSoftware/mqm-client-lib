@@ -250,7 +250,7 @@
         <profile>
             <id>sign</id>
             <properties>
-                <gpg.homedir>/opt/gpg_import</gpg.homedir>
+                <gpg.homedir>/opt/gpg</gpg.homedir>
             </properties>
             <build>
                 <pluginManagement>
