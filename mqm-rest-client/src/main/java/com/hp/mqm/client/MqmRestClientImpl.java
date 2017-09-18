@@ -26,6 +26,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.entity.GzipCompressingEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -953,7 +954,8 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		HttpResponse response = null;
 		try {
 			request = new HttpPut(createSharedSpaceInternalApiUri(URI_PUT_ABRIDGED_RESULT, selfIdentity, taskId));
-			request.setEntity(new StringEntity(contentJSON, ContentType.APPLICATION_JSON));
+			request.setEntity(new GzipCompressingEntity(new StringEntity(contentJSON, ContentType.APPLICATION_JSON)));
+
 			response = execute(request);
 			return response.getStatusLine().getStatusCode();
 		} catch (Exception e) {
