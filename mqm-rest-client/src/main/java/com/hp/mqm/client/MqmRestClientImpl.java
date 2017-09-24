@@ -865,7 +865,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		boolean result = true;
 		try {
 			request = new HttpPut(createSharedSpaceInternalApiUri(URI_PUT_EVENTS));
-			request.setEntity(new GzipCompressingEntity(new StringEntity(eventsJSON, ContentType.APPLICATION_JSON)));
+			request.setEntity(new StringEntity(eventsJSON, ContentType.APPLICATION_JSON));
 			response = execute(request);
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_TEMPORARY_REDIRECT) {
 				// ad-hoc handling as requested by Jenkins Insight team
