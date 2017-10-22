@@ -35,6 +35,7 @@ import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
 import org.apache.commons.codec.binary.Base64;
@@ -72,6 +73,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	private static final String URI_GET_ABRIDGED_TASKS = "analytics/ci/servers/{0}/tasks?self-type={1}&self-url={2}&api-version={3}&sdk-version={4}&plugin-version={5}&client-id={6}&ci-server-user={7}";
 	private static final String URI_PUT_ABRIDGED_RESULT = "analytics/ci/servers/{0}/tasks/{1}/result";
 	private static final String URI_POST_LOGS = "analytics/ci/{0}/{1}/{2}/logs";
+	private static final String URI_POST_COVERAGE_REPORTS = "analytics/ci/coverage?ci-server-identity={0}&ci-job-id={1}&ci-build-id={2}&file-type={3}";
 	private static final String URI_TAXONOMY_NODES = "taxonomy_nodes";
 
 	private static final String HEADER_ACCEPT = "Accept";
@@ -909,6 +911,33 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 			logger.info(IOUtils.toString(response.getEntity().getContent(), "UTF-8"));
 		} catch (IOException e) {
 			throw new RequestErrorException("Cannot post logs to MQM.", e);
+		} finally {
+			HttpClientUtils.closeQuietly(response);
+		}
+		return result;
+	}
+	@Override
+	public boolean postCoverageReports(String selfIdentity, String ciJobId, String ciBuildId, InputStream inputStream, Long contentLength, String reportType) {
+		HttpPut request;
+		HttpResponse response = null;
+		boolean result = true;
+
+		try {
+			request = new HttpPut(createSharedSpaceInternalApiUri(URI_POST_COVERAGE_REPORTS, selfIdentity, ciJobId, ciBuildId, reportType));
+			request.setEntity(new GzipCompressingEntity(new InputStreamEntity(inputStream)));
+			response = execute(request);
+			int statusCode = response.getStatusLine().getStatusCode();
+
+			if (statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE || statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+				result = false;
+				logger.severe("post request failed while sending coverage reports: " + statusCode);
+			} else if (statusCode != HttpStatus.SC_OK) {
+				logger.severe("coverage reports post failed" + statusCode);
+				throw createRequestException("coverage reports post failed", response);
+			}
+			logger.info(IOUtils.toString(response.getEntity().getContent(), "UTF-8"));
+		} catch (IOException e) {
+			throw new RequestErrorException("Cannot post coverage reports to MQM.", e);
 		} finally {
 			HttpClientUtils.closeQuietly(response);
 		}

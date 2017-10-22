@@ -272,6 +272,20 @@ public interface MqmRestClient extends BaseMqmRestClient {
 	boolean postLogs(long workspaceId, String selfIdentity, String ciJobId, String ciBuildId, InputStream inputStream, Long contentLength);
 
 	/**
+	 * Sends coverage reports to MQM [POST request].
+	 * InputStream obtained from InputStreamSource is automatically closed after all data are read.
+	 * No exception is expected to be thrown.
+	 * @param selfIdentity identity of the server
+	 * @param ciJobId The job name
+	 * @param ciBuildId The build number.
+	 * @param inputStream The build number.
+	 * @param contentLength The file size .
+	 * @param reportType jacoco or lcov type
+	 * @return The operation status.
+	 */
+	boolean postCoverageReports(String selfIdentity, String ciJobId, String ciBuildId, InputStream inputStream, Long contentLength, String reportType);
+
+	/**
 	 * Retrieves tasks from service working in Abridged Connectivity Mode
 	 *
 	 * @return
