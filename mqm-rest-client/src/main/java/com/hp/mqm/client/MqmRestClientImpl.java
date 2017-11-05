@@ -70,7 +70,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	private static final String URI_LIST_ITEMS = "list_nodes";
 	private static final String URI_METADATA_FIELDS = "metadata/fields";
 	private static final String URI_PUT_EVENTS = "analytics/ci/events";
-	private static final String URI_GET_ABRIDGED_TASKS = "analytics/ci/servers/{0}/tasks?self-type={1}&self-url={2}&api-version={3}&sdk-version={4}&plugin-version={5}&client-id={6}&ci-server-user={7}";
+	private static final String URI_GET_ABRIDGED_TASKS = "analytics/ci/servers/{0}/tasks?self-type={1}&self-url={2}&api-version={3}&sdk-version={4}&plugin-version={5}&client-id={6}&ci-server-user={7}&suspended={8}";
 	private static final String URI_PUT_ABRIDGED_RESULT = "analytics/ci/servers/{0}/tasks/{1}/result";
 	private static final String URI_POST_LOGS = "analytics/ci/{0}/{1}/{2}/logs";
 	private static final String URI_POST_COVERAGE_REPORTS = "analytics/ci/coverage?ci-server-identity={0}&ci-job-id={1}&ci-build-id={2}&file-type={3}";
@@ -951,7 +951,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		String responseBody;
 		try {
 			request = new HttpGet(createSharedSpaceInternalApiUri(URI_GET_ABRIDGED_TASKS, info.getSelfIdentity(), info.getSelfType(),
-					info.getSelfLocation(), info.getApiVersion(), info.getSdkVersion(), info.getPluginVersion(), info.getOctaneUser(), info.getCiServerUser()));
+					info.getSelfLocation(), info.getApiVersion(), info.getSdkVersion(), info.getPluginVersion(), info.getOctaneUser(), info.getCiServerUser(), info.isSuspend()));
 			response = execute(request);
 			responseBody = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
