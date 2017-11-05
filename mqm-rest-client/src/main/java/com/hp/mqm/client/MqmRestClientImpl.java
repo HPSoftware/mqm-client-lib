@@ -734,11 +734,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		request.setHeader(HTTP.CONTENT_TYPE, "application/json");
 		request.setHeader("Accept", "application/json");
 
-		try {
-			request.setEntity(new StringEntity(entityJson));
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("Failed to create StringEntity :" + e.getMessage(), e);
-		}
+		request.setEntity(new StringEntity(entityJson, ContentType.APPLICATION_JSON));
 		HttpResponse response;
 		try {
 			response = execute(request);
@@ -789,12 +785,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		HttpPut request = new HttpPut(uri);
 		request.setHeader(HTTP.CONTENT_TYPE, "application/json");
 		request.setHeader("Accept", "application/json");
-
-		try {
-			request.setEntity(new StringEntity(entityJson));
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("Failed to create StringEntity :" + e.getMessage(), e);
-		}
+		request.setEntity(new StringEntity(entityJson, ContentType.APPLICATION_JSON));
 		HttpResponse response;
 		try {
 			response = execute(request);
