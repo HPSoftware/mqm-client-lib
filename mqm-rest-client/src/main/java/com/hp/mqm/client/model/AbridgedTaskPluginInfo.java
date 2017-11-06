@@ -27,6 +27,7 @@ public class AbridgedTaskPluginInfo {
     private String pluginVersion;
     private String ciServerUser;
     private String octaneUser;
+    private boolean suspend;
 
     public String getSelfIdentity() {
         return selfIdentity;
@@ -99,4 +100,14 @@ public class AbridgedTaskPluginInfo {
         this.octaneUser = octaneUser;
         return this;
     }
+
+    public boolean isSuspend(){
+        return this.suspend;
+    }
+
+    public AbridgedTaskPluginInfo setSuspend(boolean suspend){
+        this.suspend= suspend;
+        return this;
+    }
+
 }
