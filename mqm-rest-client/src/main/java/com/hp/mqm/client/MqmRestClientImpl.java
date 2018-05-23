@@ -728,7 +728,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	}
 
 	@Override
-	public JSONObject postEntities(long workspaceId, String entityCollectionName, String entityJson) {
+	public JSONObject postEntities(Long workspaceId, String entityCollectionName, String entityJson) {
 		URI uri = getEntityURI(entityCollectionName, null, null, workspaceId, null, null, null);
 		HttpPost request = new HttpPost(uri);
 		request.setHeader(HTTP.CONTENT_TYPE, "application/json");
@@ -752,7 +752,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 		}
 	}
 
-	public List<Entity> getEntities(long workspaceId, String entityCollectionName, Collection<String> conditions, Collection<String> fields) {
+	public List<Entity> getEntities(Long workspaceId, String entityCollectionName, Collection<String> conditions, Collection<String> fields) {
 		List<Entity> result = new ArrayList<>();
 		int limit = MAX_GET_LIMIT;
 		int offset = DEFAULT_OFFSET;
@@ -770,13 +770,13 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	}
 
 	@Override
-	public JSONObject updateEntity(long workspaceId, String entityCollectionName, long entityId, String entityJson) {
+	public JSONObject updateEntity(Long workspaceId, String entityCollectionName, long entityId, String entityJson) {
 		URI uri = getEntityIdURI(entityCollectionName, entityId, workspaceId);
 		return updateEntities(uri, entityJson);
 	}
 
 	@Override
-	public JSONObject updateEntities(long workspaceId, String entityCollectionName, String entityJson) {
+	public JSONObject updateEntities(Long workspaceId, String entityCollectionName, String entityJson) {
 		URI uri = getEntityURI(entityCollectionName, null, null, workspaceId, null, null, null);
 		return updateEntities(uri, entityJson);
 	}
@@ -804,7 +804,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 	}
 
 	@Override
-	public PagedList<Entity> deleteEntities(long workspaceId, String entityCollectionName, Collection<Long> entitiesIds) {
+	public PagedList<Entity> deleteEntities(Long workspaceId, String entityCollectionName, Collection<Long> entitiesIds) {
 		//query="id=3011||id=3012"
 
 		if (entitiesIds == null || entitiesIds.isEmpty()) {

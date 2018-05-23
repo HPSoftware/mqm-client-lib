@@ -237,15 +237,15 @@ public interface MqmRestClient extends BaseMqmRestClient {
 	 */
 	List<FieldMetadata> getFieldsMetadata(long workspaceId);
 
-    JSONObject postEntities(long workspaceId, String entityCollectionName, String entityJson) ;
+    JSONObject postEntities(Long workspaceId, String entityCollectionName, String entityJson) ;
 
-	List<Entity> getEntities(long workspaceId, String entityCollectionName, Collection<String> conditions, Collection<String> fields);
+	List<Entity> getEntities(Long workspaceId, String entityCollectionName, Collection<String> conditions, Collection<String> fields);
 
-    PagedList<Entity> deleteEntities(long workspaceId, String entityCollectionName, Collection<Long> entitiesIds);
+    PagedList<Entity> deleteEntities(Long workspaceId, String entityCollectionName, Collection<Long> entitiesIds);
 
-    JSONObject updateEntity(long workspaceId, String entityCollectionName, long id, String entityJson);
+    JSONObject updateEntity(Long workspaceId, String entityCollectionName, long id, String entityJson);
 
-	JSONObject updateEntities(long workspaceId, String entityCollectionName, String entityJson);
+	JSONObject updateEntities(Long workspaceId, String entityCollectionName, String entityJson);
 
 	/**
 	 * Sends events list to MQM [PUT request].
