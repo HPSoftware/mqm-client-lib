@@ -22,6 +22,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
@@ -38,7 +39,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
-import org.apache.commons.codec.binary.Base64;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -763,7 +764,7 @@ public class MqmRestClientImpl extends AbstractMqmRestClient implements MqmRestC
 
 			result.addAll(found.getItems());
 			offset = offset + found.getItems().size();
-			fetchedAll = found.getItems().isEmpty() || found.getTotalCount() == result.size();
+			fetchedAll = found.getItems().isEmpty() || found.getTotalCount() == 0 || found.getTotalCount() == result.size();
 		}
 
 		return result;
